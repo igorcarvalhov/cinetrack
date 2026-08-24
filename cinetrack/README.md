@@ -1,3 +1,5 @@
+🔗 **[Acesse o projeto ao vivo](https://cinetrack-coral-ten.vercel.app)**
+
 # 🎬 CineTrack
 
 Aplicativo web para buscar filmes e séries e organizá-los em listas pessoais (favoritos, quero assistir, assistidos). Projeto desenvolvido para prática e portfólio, com autenticação de usuários e persistência de dados em tempo real.
