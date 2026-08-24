@@ -3,7 +3,7 @@ import { getPopularMovies, searchMovies } from '../services/tmdb'
 import { useFavorites } from '../hooks/useFavorites'
 import { useAuth } from '../hooks/useAuth'
 import { MovieCard } from '../components/MovieCard'
-import type { Movie } from '../types/movie'
+import type { Movie, FavoriteStatus } from '../types/movie'
 import './Home.css'
 
 export function Home() {
@@ -13,7 +13,7 @@ export function Home() {
   const [error, setError] = useState<string | null>(null)
 
   const { user } = useAuth()
-  const { addFavorite, isFavorite } = useFavorites()
+  const { toggleStatus, getStatus } = useFavorites()
 
   useEffect(() => {
     void loadPopularMovies()
@@ -52,17 +52,17 @@ export function Home() {
     }
   }
 
-  async function handleSave(movie: Movie) {
-    try {
-      await addFavorite(movie, 'quero assistir')
-    } catch {
-      alert('Erro ao salvar filme. Você precisa estar logado.')
-    }
+  async function handleSetStatus(movie: Movie, status: FavoriteStatus) {
+  try {
+    await toggleStatus(movie, status)
+  } catch {
+    alert('Erro ao salvar filme. Você precisa estar logado.')
   }
+}
 
   return (
     <div className="page-container">
-      <h1>Filmes Populares</h1>
+      <h1>Filmes</h1>
 
       <form className="search-form" onSubmit={handleSearch}>
         <input
@@ -82,20 +82,41 @@ export function Home() {
       )}
 
       <div className="movie-grid">
-        {movies.map((movie) => (
-          <MovieCard
-            key={movie.id}
-            title={movie.title}
-            posterPath={movie.poster_path}
-            action={
-              user && (
-                <button onClick={() => handleSave(movie)} disabled={isFavorite(movie.id)}>
-                  {isFavorite(movie.id) ? 'Salvo ✓' : 'Salvar'}
-                </button>
-              )
-            }
-          />
-        ))}
+        {movies.map((movie) => {
+          const currentStatus = getStatus(movie.id)
+
+          return (
+            <MovieCard
+              key={movie.id}
+              title={movie.title}
+              posterPath={movie.poster_path}
+              action={
+                user && (
+                  <div className="status-buttons">
+                    <button
+                      className={currentStatus === 'favorito' ? 'active' : ''}
+                      onClick={() => handleSetStatus(movie, 'favorito')}
+                    >
+                      ⭐ Favorito
+                    </button>
+                    <button
+                      className={currentStatus === 'quero assistir' ? 'active' : ''}
+                      onClick={() => handleSetStatus(movie, 'quero assistir')}
+                    >
+                      📌 Quero Assistir
+                    </button>
+                    <button
+                      className={currentStatus === 'assistido' ? 'active' : ''}
+                      onClick={() => handleSetStatus(movie, 'assistido')}
+                    >
+                      ✅ Assistido
+                    </button>
+                  </div>
+                )
+              }
+            />
+          )
+        })}
       </div>
     </div>
   )

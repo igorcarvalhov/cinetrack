@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar'
 import { Login } from './pages/Login'
 import { Home } from './pages/Home'
 import { MinhaLista } from './pages/MinhaLista'
+import { Perfil } from './pages/Perfil'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -31,6 +32,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MinhaLista />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <Perfil />
             </ProtectedRoute>
           }
         />

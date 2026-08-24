@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useProfile } from '../hooks/useProfile'
 import './Navbar.css'
 
 export function Navbar() {
   const { user, signOut } = useAuth()
+  const { profile } = useProfile()
 
   async function handleSignOut() {
     try {
@@ -12,6 +14,8 @@ export function Navbar() {
       alert('Erro ao sair.')
     }
   }
+
+  const displayName = profile?.username || user?.email
 
   return (
     <nav className="navbar">
@@ -22,7 +26,16 @@ export function Navbar() {
       <div className="navbar-right">
         {user ? (
           <>
-            <span className="navbar-email">{user.email}</span>
+            <Link to="/perfil" className="navbar-profile">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Perfil" className="navbar-avatar" />
+              ) : (
+                <div className="navbar-avatar-placeholder">
+                  {(displayName || '?')[0].toUpperCase()}
+                </div>
+              )}
+              <span className="navbar-username">{displayName}</span>
+            </Link>
             <button onClick={handleSignOut}>Sair</button>
           </>
         ) : (

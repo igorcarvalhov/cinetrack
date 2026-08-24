@@ -27,21 +27,34 @@ export function useFavorites() {
     setLoading(false)
   }, [user])
 
-useEffect(() => {
-  // eslint-disable-next-line
-  loadFavorites()
-}, [loadFavorites])
+  useEffect(() => {
+    // eslint-disable-next-line
+    void loadFavorites()
+  }, [loadFavorites])
 
   async function addFavorite(movie: Movie, status: FavoriteStatus) {
     if (!user) throw new Error('Usuário não autenticado')
 
-    const { error } = await supabase.from('favorites').insert({
-      user_id: user.id,
-      movie_id: movie.id,
-      movie_title: movie.title,
-      poster_path: movie.poster_path,
-      status,
-    })
+    const { error } = await supabase.from('favorites').upsert(
+      {
+        user_id: user.id,
+        movie_id: movie.id,
+        movie_title: movie.title,
+        poster_path: movie.poster_path,
+        status,
+      },
+      { onConflict: 'user_id,movie_id' }
+    )
+
+    if (error) throw error
+    await loadFavorites()
+  }
+
+  async function updateStatus(favoriteId: number, status: FavoriteStatus) {
+    const { error } = await supabase
+      .from('favorites')
+      .update({ status })
+      .eq('id', favoriteId)
 
     if (error) throw error
     await loadFavorites()
@@ -57,9 +70,37 @@ useEffect(() => {
     await loadFavorites()
   }
 
-  function isFavorite(movieId: number) {
-    return favorites.some((f) => f.movie_id === movieId)
+  function getStatus(movieId: number): FavoriteStatus | null {
+    const favorite = favorites.find((f) => f.movie_id === movieId)
+    return favorite?.status ?? null
   }
 
-  return { favorites, loading, addFavorite, removeFavorite, isFavorite }
+  function getFavoriteId(movieId: number): number | null {
+    const favorite = favorites.find((f) => f.movie_id === movieId)
+    return favorite?.id ?? null
+  }
+
+  async function toggleStatus(movie: Movie, status: FavoriteStatus) {
+    const currentStatus = getStatus(movie.id)
+
+    if (currentStatus === status) {
+      const favoriteId = getFavoriteId(movie.id)
+      if (favoriteId) {
+        await removeFavorite(favoriteId)
+      }
+    } else {
+      await addFavorite(movie, status)
+    }
+  }
+
+  return {
+    favorites,
+    loading,
+    addFavorite,
+    updateStatus,
+    removeFavorite,
+    getStatus,
+    getFavoriteId,
+    toggleStatus,
+  }
 }
