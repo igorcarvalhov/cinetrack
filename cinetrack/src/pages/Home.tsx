@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { getPopularMovies, searchMovies } from '../services/tmdb'
 import { useFavorites } from '../hooks/useFavorites'
 import { useAuth } from '../hooks/useAuth'
+import { MovieCard } from '../components/MovieCard'
 import type { Movie } from '../types/movie'
+import './Home.css'
 
 export function Home() {
   const [movies, setMovies] = useState<Movie[]>([])
@@ -14,7 +16,7 @@ export function Home() {
   const { addFavorite, isFavorite } = useFavorites()
 
   useEffect(() => {
-    loadPopularMovies()
+    void loadPopularMovies()
   }, [])
 
   async function loadPopularMovies() {
@@ -59,10 +61,10 @@ export function Home() {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <h1>Filmes Populares</h1>
 
-      <form onSubmit={handleSearch}>
+      <form className="search-form" onSubmit={handleSearch}>
         <input
           type="text"
           placeholder="Buscar filme..."
@@ -79,28 +81,20 @@ export function Home() {
         <p>Nenhum filme encontrado.</p>
       )}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="movie-grid">
         {movies.map((movie) => (
-          <div key={movie.id} style={{ width: '150px' }}>
-            {movie.poster_path ? (
-              <img
-                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                alt={movie.title}
-                style={{ width: '100%', borderRadius: '8px' }}
-              />
-            ) : (
-              <div style={{ width: '100%', height: '225px', background: '#ccc' }}>
-                Sem imagem
-              </div>
-            )}
-            <p>{movie.title}</p>
-
-            {user && (
-              <button onClick={() => handleSave(movie)} disabled={isFavorite(movie.id)}>
-                {isFavorite(movie.id) ? 'Salvo ✓' : 'Salvar'}
-              </button>
-            )}
-          </div>
+          <MovieCard
+            key={movie.id}
+            title={movie.title}
+            posterPath={movie.poster_path}
+            action={
+              user && (
+                <button onClick={() => handleSave(movie)} disabled={isFavorite(movie.id)}>
+                  {isFavorite(movie.id) ? 'Salvo ✓' : 'Salvar'}
+                </button>
+              )
+            }
+          />
         ))}
       </div>
     </div>

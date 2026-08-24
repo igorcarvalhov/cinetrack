@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import './Navbar.css'
 
 export function Navbar() {
   const { user, signOut } = useAuth()
@@ -13,15 +14,15 @@ export function Navbar() {
   }
 
   return (
-    <nav style={{ display: 'flex', gap: '16px', padding: '16px', borderBottom: '1px solid #ccc' }}>
-      <Link to="/">Home</Link>
+    <nav className="navbar">
+      <Link to="/" className="navbar-logo">🎬 CineTrack</Link>
 
       {user && <Link to="/minha-lista">Minha Lista</Link>}
 
-      <div style={{ marginLeft: 'auto' }}>
+      <div className="navbar-right">
         {user ? (
           <>
-            <span style={{ marginRight: '8px' }}>{user.email}</span>
+            <span className="navbar-email">{user.email}</span>
             <button onClick={handleSignOut}>Sair</button>
           </>
         ) : (

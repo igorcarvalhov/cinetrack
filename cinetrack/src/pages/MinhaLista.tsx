@@ -1,4 +1,6 @@
 import { useFavorites } from '../hooks/useFavorites'
+import { MovieCard } from '../components/MovieCard'
+import './Home.css'
 
 export function MinhaLista() {
   const { favorites, loading, removeFavorite } = useFavorites()
@@ -12,7 +14,7 @@ export function MinhaLista() {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <h1>Minha Lista</h1>
 
       {loading && <p>Carregando...</p>}
@@ -21,27 +23,19 @@ export function MinhaLista() {
         <p>Você ainda não salvou nenhum filme.</p>
       )}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="movie-grid">
         {favorites.map((favorite) => (
-          <div key={favorite.id} style={{ width: '150px' }}>
-            {favorite.poster_path ? (
-              <img
-                src={`https://image.tmdb.org/t/p/w200${favorite.poster_path}`}
-                alt={favorite.movie_title}
-                style={{ width: '100%', borderRadius: '8px' }}
-              />
-            ) : (
-              <div style={{ width: '100%', height: '225px', background: '#ccc' }}>
-                Sem imagem
-              </div>
-            )}
-            <p>{favorite.movie_title}</p>
-            <p style={{ fontSize: '12px', color: '#666' }}>{favorite.status}</p>
-
-            <button onClick={() => handleRemove(favorite.id)}>
-              Remover
-            </button>
-          </div>
+          <MovieCard
+            key={favorite.id}
+            title={favorite.movie_title}
+            posterPath={favorite.poster_path}
+            status={favorite.status}
+            action={
+              <button onClick={() => handleRemove(favorite.id)}>
+                Remover
+              </button>
+            }
+          />
         ))}
       </div>
     </div>
